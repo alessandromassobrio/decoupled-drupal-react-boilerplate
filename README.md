@@ -6,53 +6,79 @@ This project aims at providing a simple ready-to-use fully decoupled Drupal8 + R
 
 ## Backend
 
-#### Install Drupal8x with Composer
+#### Install Drupal8x 
+##### A. Quick install using the Contenta distribution
 
-```composer create-project drupal-composer/drupal-project:8.x-dev YOUR_DRUPAL_DIRECTORY --stability dev --no-interaction```
+```
+php -r "readfile('https://raw.githubusercontent.com/contentacms/contenta_jsonapi_project/8.x-2.x/scripts/download.sh');" > download-contentacms.sh
+chmod a+x download-contentacms.sh
+./download-contentacms.sh /path/to/new-dir-for-contenta
+```
+              
+After that, copy .env.example into .env and add the database connection details. NOTE: it is highly recommended to use .env.local to store your credentials, since that file is ignored by git.
 
-Then ceate a MySQL or MariaDB database where to store data (you either need to setup your own virtual machine, or to use MAMP/XAMPP).
+###### Example .env file.
+```
+SITE_MAIL=admin@localhost
+ACCOUNT_MAIL=admin@localhost
+SITE_NAME='Contenta CMS Demo'
+ACCOUNT_NAME=admin
+MYSQL_DATABASE=contenta
+MYSQL_HOSTNAME=localhost
+MYSQL_PORT=3306
+MYSQL_USER=contenta
+```
+              
+###### Example .env.local file.
+```
+MYSQL_PASSWORD=contenta
+ACCOUNT_PASS=admin
+```
+              
+Once you have added your database connection details you can:
 
-#### Access the Drupal installation procedure 
+```
+composer run-script install:with-mysql
+```
 
-```http://localhost:{PORT}/{YOUR_DRUPAL_DIRECTORY}```
+##### B. Custom install with Composer
 
-### (alternatively) Install Drupal8x using Docker
+```
+composer create-project drupal-composer/drupal-project:8.x-dev YOUR_DRUPAL_DIRECTORY --stability dev --no-interaction
+```
+You need to setup your own virtual host in order to access the installation procedure in your browser.
 
-Pull MariaDB.
 
-```docker pull mariadb```
+#### C. Using a Docker container
 
-Pull Drupal8.
+Pull MariaDB and latest Drupal version
 
-```docker pull drupal:latest```
+```
+docker pull mariadb
+docker pull drupal:latest
+```
 
-(optional) Check your images.
+Bind the just created MariaDB with Drupal
 
-```docker images```
+```
+docker run -e MYSQL_ROOT_PASSWORD=admin -e MYSQL_DATABASE=drupal8 -e MYSQL_USER=drupal8 -e MYSQL_PASSWORD=drupal8 -v mariadb:/var/lib/mysql -d --name mariadb mariadb
+docker run --name drupal8 --link mariadb:mysql -p 8000:80 -d drupal:latest
+```
+You can now open the browser and complete the installation procedure at ```http://localhost:8000/```. In Database configuration setting, under Advanced settings, you need to specify database host: ```mysql``` instead of ```localhost```.
 
-Run a container with MariaDB. Note that the data will be stored inside of the container therefore it will be lost after rebuilding the container (you might need it to apply MariaDB updates).
-
-```docker run -e MYSQL_ROOT_PASSWORD=admin -e MYSQL_DATABASE=drupal8 -e MYSQL_USER=drupal8 -e MYSQL_PASSWORD=drupal8 -v mariadb:/var/lib/mysql -d --name mariadb mariadb```
-
-Run Drupal container and link it to the just created MariaDB. Please adjust your port at ```-p xxxx:80``` if required
-
-```docker run --name drupal8 --link mariadb:mysql -p 8000:80 -d drupal:latest```
-
-Open the browser and complete the installation procedure at ```http://localhost:8000/```. In the Database configuration setting, under Advanced settings, you need to specify database host: ```mysql``` instead of ```localhost```.
-
-#### Enable the JSON:API module
+#### Enable the JSON:API module (you can skip this if using the Contenta distribution)
 
 With Drush (if installed)
 
 ```vendor/bin/drush en -y jsonapi```
 
-or using the Drupal Administrator UI 
+otherwise just use the Drupal Administrator UI 
 
-#### Configure CORS
+#### Configure CORS (you can skip this if using the Contenta distribution)
 
 Create a copy of the "default.services.yml" file. In your Drupal directory: ```cp /sites/default/default.services.yml /sites/default/services.yml```
 
-Then edit ```services.yml```, CTRL+V at the bottom to the ```cors.config``` section and replace the parameters as follows:
+Then edit ```services.yml``` and replace the parameters at the bottom to the ```cors.config``` as follows:
 
 ```
 cors.config:
@@ -71,19 +97,16 @@ cors.config:
     supportsCredentials: true
 ```
 
-#### Log in to the Drupal Administrator
-
-Create some data.
-
 ## Frontend
 
 #### Start the app
 
-```npm install```
+Install dependencies and start the app at [http://localhost:3000](http://localhost:3000)
 
-```npm start```
-
-Runs the app in the development mode at [http://localhost:3000](http://localhost:3000)
+```
+npm install
+npm start
+```
 
 #### Configure the Drupal baseurl
 
