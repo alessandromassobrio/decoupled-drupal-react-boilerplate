@@ -1,6 +1,4 @@
-...WIP...
-
-This project aims at providing a simple ready-to-use fully decoupled Drupal8 + React boilerplate, where Drupal is used as data source and React is used as frontend. <br />The project supports only the default Drupal8 node types (Article and Basic Page); custom content types can be fetched by creating a new component for each of them in the ./components folder floowing the data structure at ```{baseurl}/jsonapi/node/{CUSTOM_NODE_TYPE}```. The app comes without any style.
+A basic decoupled React boilerplate to be used with Drupal 8x core module JSON:API<br />The project supports the default Drupal8 node—type—article; custom content types can be fetched by creating new components matching the endpoint at ```{baseurl}/jsonapi/node/{CUSTOM_NODE_TYPE}```. The app comes without any style.
 
 # Usage
 
