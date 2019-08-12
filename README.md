@@ -1,68 +1,94 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+...WIP...
 
-## Available Scripts
+This project aims at providing a simple ready-to-use fully decoupled Drupal8 + React boilerplate, where Drupal is used as data source and React is used as frontend. <br />The project supports only the default Drupal8 node types (Article and Basic Page); custom content types can be fetched by creating a new component for each of them in the ./components folder floowing the data structure at ```{baseurl}/jsonapi/node/{CUSTOM_NODE_TYPE}```. The app comes without any style.
 
-In the project directory, you can run:
+# Usage
 
-### `npm start`
+## Backend
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+#### Install Drupal8x with Composer
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+```composer create-project drupal-composer/drupal-project:8.x-dev YOUR_DRUPAL_DIRECTORY --stability dev --no-interaction```
 
-### `npm test`
+Then ceate a MySQL or MariaDB database where to store data (you either need to setup your own virtual machine, or to use MAMP/XAMPP).
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+#### Access the Drupal installation procedure 
 
-### `npm run build`
+```http://localhost:{PORT}/{YOUR_DRUPAL_DIRECTORY}```
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### (alternatively) Install Drupal8x using Docker
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+Pull MariaDB.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```docker pull mariadb```
 
-### `npm run eject`
+Pull Drupal8.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```docker pull drupal:latest```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+(optional) Check your images.
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```docker images```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Run a container with MariaDB. Note that the data will be stored inside of the container therefore it will be lost after rebuilding the container (you might need it to apply MariaDB updates).
 
-## Learn More
+```docker run -e MYSQL_ROOT_PASSWORD=admin -e MYSQL_DATABASE=drupal8 -e MYSQL_USER=drupal8 -e MYSQL_PASSWORD=drupal8 -v mariadb:/var/lib/mysql -d --name mariadb mariadb```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Run Drupal container and link it to the just created MariaDB. Please adjust your port at ```-p xxxx:80``` if required
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```docker run --name drupal8 --link mariadb:mysql -p 8000:80 -d drupal:latest```
 
-### Code Splitting
+Open the browser and complete the installation procedure at ```http://localhost:8000/```. In the Database configuration setting, under Advanced settings, you need to specify database host: ```mysql``` instead of ```localhost```.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+#### Enable the JSON:API module
 
-### Analyzing the Bundle Size
+With Drush (if installed)
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+```vendor/bin/drush en -y jsonapi```
 
-### Making a Progressive Web App
+or using the Drupal Administrator UI 
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+#### Configure CORS
 
-### Advanced Configuration
+Create a copy of the "default.services.yml" file. In your Drupal directory: ```cp /sites/default/default.services.yml /sites/default/services.yml```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+Then edit ```services.yml```, CTRL+V at the bottom to the ```cors.config``` section and replace the parameters as follows:
 
-### Deployment
+```
+cors.config:
+    enabled: true
+    # Specify allowed headers, like 'x-allowed-header'.
+    allowedHeaders: ['x-csrf-token','authorization','content-type','accept','origin','x-requested-with', 'access-control-allow-origin','x-allowed-header','*']
+    # Specify allowed request methods, specify ['*'] to allow all possible ones.
+    allowedMethods: ['*']
+    # Configure requests allowed from specific origins.
+    allowedOrigins: ['http://localhost/','http://localhost:3000','http://localhost:3001','http://localhost:3002','*']
+    # Sets the Access-Control-Expose-Headers header.
+    exposedHeaders: false
+    # Sets the Access-Control-Max-Age header.
+    maxAge: false
+    # Sets the Access-Control-Allow-Credentials header.
+    supportsCredentials: true
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+#### Log in to the Drupal Administrator
 
-### `npm run build` fails to minify
+Create some data.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+## Frontend
+
+#### Start the app
+
+```npm install```
+
+```npm start```
+
+Runs the app in the development mode at [http://localhost:3000](http://localhost:3000)
+
+#### Configure the Drupal baseurl
+
+Replace the ```baseurl``` placeholder with the actual path in the "config.js" file
+
+#### Deploy the app
+
+```npm run build```
