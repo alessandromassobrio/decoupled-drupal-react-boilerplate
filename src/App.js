@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import Articles from "./components/nodes/articles/Articles";
-import axios from "axios";
 import config from './config';
 
 const API_URL = `${config.baseurl}jsonapi`;
@@ -12,10 +11,21 @@ class App extends Component {
     articles: []
   }
 
-  async componentDidMount() {
-    const rsp = await axios.get(`${ENDPOINT_URL}`);
+  componentDidMount() {
+    this.loadArticles();
+  }
 
-    this.setState({ articles: rsp.data });
+  loadArticles() {
+    fetch(ENDPOINT_URL, {mode:'cors'})
+      .then((rsp) => {
+        return rsp.json();
+      })
+      .then((data) => this.updateData(data))
+      .catch(err => console.log('Fetching Articles Failed', err));
+  }
+
+  updateData(rsp) {
+    this.setState({articles: rsp.data});
   }
 
   render() {
