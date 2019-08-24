@@ -57,3 +57,5 @@ docker run -e MYSQL_ROOT_PASSWORD=admin -e MYSQL_DATABASE=drupal8 -e MYSQL_USER=
 docker run --name drupal8 --link mariadb:mysql -p 8000:80 -d drupal:latest
 ```
 You can now open the browser and complete the installation procedure at ```http://localhost:8000/```. In Database configuration setting, under Advanced settings, you need to specify database host: ```mysql``` instead of ```localhost```.
+
+[Go back to README.md](README.md#install-drupal-8x)
