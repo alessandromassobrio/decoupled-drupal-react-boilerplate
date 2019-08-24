@@ -29,3 +29,4 @@ cors.config:
     # Sets the Access-Control-Allow-Credentials header.
     supportsCredentials: true
 ```
+[Go back to README.md](README.md#configure-drupal-8x)
